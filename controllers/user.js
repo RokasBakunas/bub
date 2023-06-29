@@ -67,7 +67,9 @@ module.exports.userReg = async (req, res) => {
     );
 
 
-    res.status(200).json({ response: "Registracija pavyko." });
+    res.status(200).json({ response: "Registracija pavyko.",      jwt: token,
+    refresh_token: refreshToken, });
+
   } catch (err) {
     console.log("err", err);
     res.status(500).json({ response: "Blogai... Klaida..." });
