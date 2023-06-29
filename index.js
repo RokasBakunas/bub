@@ -1,24 +1,25 @@
 const express = require("express");
 const app = express();
+const router = express.Router();
 var cors = require("cors");
 const bodyParser = require("body-parser");
-const axios = require("axios");
+// const axios = require("axios");
 require("dotenv").config();
 const mongoose = require("mongoose");
 
 // routes
 
-const user = require("./router/user");
-const questions = require("./router/questions");
-const answer = require("./router/answer")
+const userRouter = require("./routes/user");
+const questionsRouter = require("./routes/questions");
+const answerRouter = require("./routes/answer")
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(user);
-app.use(questions);
-app.use(answer);
+app.use(userRouter);
+app.use(questionsRouter);
+app.use(answerRouter);
 
 
 
@@ -44,6 +45,7 @@ mongoose
 
 
 
-app.listen(process.port, () => {
+app.listen(process.env.PORT, () => {
   console.log(" API WORK ");
+  console.log("port",process.env.PORT)
 });

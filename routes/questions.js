@@ -5,7 +5,7 @@ const {
     getQuestions,
     addQuestion,
     getByIdQuestion,
-} = require("./../controllers/questions");
+} = require("../controllers/questions");
 
 
 // gaunam visus klausimus
