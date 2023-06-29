@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middleware/auth");
 
 const {
     getQuestions,
@@ -9,11 +11,11 @@ const {
 
 
 // gaunam visus klausimus
-router.get("/questions", getQuestions);
+router.get("/questions", authMiddleware, getQuestions);
 // pridedam klausimą
-router.post("/question", addQuestion);
+router.post("/question", authMiddleware, addQuestion);
 // trinam klausima pagal id
-router.delete("/question/:id", getByIdQuestion);
+router.delete("/question/:id", authMiddleware, getByIdQuestion);
 
 
 
