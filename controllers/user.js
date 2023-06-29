@@ -20,7 +20,7 @@ module.exports.userReg = async (req, res) => {
 
 
 
-module.exports.userReg = async (req, res) => {
+module.exports.userLogin = async (req, res) => {
 
 }
 
