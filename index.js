@@ -11,7 +11,9 @@ const mongoose = require("mongoose");
 
 const userRouter = require("./routes/user");
 const questionsRouter = require("./routes/questions");
-const answerRouter = require("./routes/answer")
+const answerRouter = require("./routes/answer");
+
+
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,7 +26,9 @@ app.use(answerRouter);
 
 
 
-
+app.get('/', (request, response) => {
+    response.send('<h1 style="text-align: center;">BUB - Baigiamoji užduotis: Back-end</h1>')
+  });
 
 
 
