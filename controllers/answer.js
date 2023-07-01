@@ -17,11 +17,30 @@ module.exports = {
         if (!req.body.answer_text || req.body.answer_text.trim() === '') {
             return res.status(400).json({ message: 'Atsakymo negalima pridėti, nes jis nėra parašytas.' });
         }
+
+            //pridedam laukeli userId kuriame nurodoma klausimmo autorius (jo id)
+    let userId;
+    try {
+      //gaunam jwt po to dekoduojam ir gaunam vartotojo id ir ji issaugome kartu su klausimu i userId
+      const decodedToken = jwt.verify(
+        req.headers.authorization,
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      userId = decodedToken.id;
+      console.log(userId);
+    } catch (err) {
+      return res
+        .status(401)
+        .json({ message: "Nepavyko patikrinti autentifikacijos." });
+    }
+
+
     
         const newAnswer = new answerModel({
             answer_text: req.body.answer_text,
             id: uniqid(),
-            question_id: req.body.question_id
+            question_id: req.body.question_id,
+            answerUserId: userId,
         });
     
         try {
