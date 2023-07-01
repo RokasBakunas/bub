@@ -20,10 +20,25 @@ module.exports = {
         return res.status(400).json({ message: 'Klausimas turi būti bent 10 simbolių ilgio.' });
     }
 
+
+    //pridedam laukeli userId kuriame nurodoma klausimmo autorius (jo id)
+    let userId;
+        try {
+            //gaunam jwt po to dekoduojam ir gaunam vartotojo id ir ji issaugome kartu su klausimu i userId
+            const decodedToken = jwt.verify(req.headers.authorization, process.env.ACCESS_TOKEN_SECRET);
+            userId = decodedToken.id;
+            console.log(userId);
+        } catch (err) {
+            return res.status(401).json({ message: 'Nepavyko patikrinti autentifikacijos.' });
+        }
+
+
+
     const newQuestion = new questionModel({
         question_text: req.body.question_text,
         answers_id: [],
         id: uniqid(),
+        userId: userId,
     });
 
     try {
