@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
+const port = process.env.PORT || 3001;
+
 var cors = require("cors");
 const bodyParser = require("body-parser");
 // const axios = require("axios");
@@ -49,7 +51,7 @@ mongoose
 
 
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(port, () => {
   console.log(" API WORK ");
-  console.log("port",process.env.PORT)
+  console.log("port",port)
 });
