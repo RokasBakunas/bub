@@ -76,4 +76,15 @@ module.exports.userReg = async (req, res) => {
   }
 };
 
-module.exports.userLogin = async (req, res) => {};
+module.exports.userLogin = async (req, res) => {
+  const { email, password } = req.body;
+try {
+
+} catch(err) {
+console.log("err", err);
+res.status(500).json({response: "Blogi prisijungimo duomenys."})
+}
+
+
+
+};
