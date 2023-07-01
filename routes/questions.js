@@ -7,6 +7,7 @@ const {
     getQuestions,
     addQuestion,
     getByIdQuestion,
+    delQuestionById,
 } = require("../controllers/questions");
 
 
@@ -14,8 +15,13 @@ const {
 router.get("/questions", authMiddleware, getQuestions);
 // pridedam klausimą
 router.post("/question", authMiddleware, addQuestion);
+
+// gaunam klausima pagal id
+router.get("/question/:id", authMiddleware, getByIdQuestion);
+
 // trinam klausima pagal id
-router.delete("/question/:id", authMiddleware, getByIdQuestion);
+router.delete("/question/:id", authMiddleware, delQuestionById);
+
 
 
 
