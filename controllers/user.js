@@ -78,11 +78,53 @@ module.exports.userReg = async (req, res) => {
 
 module.exports.userLogin = async (req, res) => {
   const { email, password } = req.body;
+
 try {
+const user = await userModel.findOne({email: email});
+const passMatch = await bcrypt.compare(password, user.password);
+
+
+//formos tikrinimo ifai>>
+
+//ar toks el. paštas yra
+if(!user){
+  res.status(404).json({response: "Blogas el. pašto adresas arba slaptažodis"});
+}
+// ar pass atitinka db su ivestu
+
+if(!passMatch) {
+  return res.status(404).json({response: "Blogas el. pašto adresas arba slaptažodis"});
+}
+
+
+
+const token = jwt.sign({email: user.email, id: user.id,},
+  process.env.ACCESS_TOKEN_SECRET,
+  { expiresIn: "3h" },
+  { algorithm: "RS256"});
+
+const refreshToken = jwt.sign(
+  {email: user.email,id: user.id,},
+  process.env.REFRESH_TOKEN_SECRET,
+  { expiresIn: "2d" }
+);
+
+
+res.status(200).json({
+  response: "Prisijungimas sėkmingas",
+  jwt: token,
+  refresh_token: refreshToken,
+});
+
+
+
+
 
 } catch(err) {
+
 console.log("err", err);
 res.status(500).json({response: "Blogi prisijungimo duomenys."})
+
 }
 
 
