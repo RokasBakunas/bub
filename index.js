@@ -49,7 +49,7 @@ mongoose
 
 
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log(" API WORK ");
   console.log("port",process.env.PORT)
 });
