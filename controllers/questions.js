@@ -57,15 +57,58 @@ module.exports = {
   },
 
   // visi klausimai
-  getQuestions: async (req, res) => {
-    try {
-      const questions = await questionModel.find();
-      res.status(200).json(questions);
-    } catch (err) {
-      res.status(500).json(err);
-      console.log(err);
-    }
-  },
+
+
+//   getQuestions: async (req, res) => {
+//     try {
+//       const questions = await questionModel.find();
+//       res.status(200).json(questions);
+//     } catch (err) {
+//       res.status(500).json(err);
+//       console.log(err);
+//     }
+//   },
+
+// visi klausimai
+getQuestions: async (req, res) => {
+  try {
+    const questions = await questionModel.aggregate([
+      {
+        $lookup: {
+          from: 'users', 
+          localField: 'userId',
+          foreignField: 'id',
+          as: 'userName',
+        },
+      },
+      {
+        $addFields: {
+          userName: { $arrayElemAt: ["$userName.name", 0] },
+        },
+      },
+      {
+        $project: {
+          question_text: 1,
+          answers_id: 1,
+          id: 1,
+          userName: 1,
+        },
+      },
+    ]);
+    res.status(200).json(questions);
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err);
+  }
+},
+
+
+
+
+
+
+
+
 
   //klausimo gavimas pagal id
   getByIdQuestion: async (req, res) => {
