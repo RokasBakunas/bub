@@ -8,6 +8,8 @@ const {
     addQuestion,
     getByIdQuestion,
     delQuestionById,
+    filterQuestions,
+
 } = require("../controllers/questions");
 
 
@@ -22,6 +24,8 @@ router.get("/question/:id", authMiddleware, getByIdQuestion);
 // trinam klausima pagal id
 router.delete("/question/:id", authMiddleware, delQuestionById);
 
+// tik su atsakymais arba tik be atsakymu true/false
+router.get("/questions/answered=:answered", authMiddleware, filterQuestions);
 
 
 

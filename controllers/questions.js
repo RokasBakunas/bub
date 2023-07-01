@@ -96,7 +96,28 @@ module.exports = {
     }
   },
 
-
+  filterQuestions: async (req, res) => {
+    try {
+      let questions;
+      if (req.params.answered === 'true') {
+        // klausimai tik su ats
+        console.log("true");
+        questions = await questionModel.find({ answers_id: { $exists: true, $not: { $size: 0 } } });
+      console.log("questions!", questions)
+      } else if (req.params.answered === 'false') {
+        // klausimai tik be ats
+        console.log("False");
+        questions = await questionModel.find({ answers_id: { $exists: true, $size: 0 } });
+      } else {
+        // jei blogai nurodyta, visi ats
+        questions = await questionModel.find({});
+      }
+      res.status(200).json(questions);
+      console.log("questionsa",questions)
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
  
 
 

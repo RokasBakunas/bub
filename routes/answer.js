@@ -25,4 +25,6 @@ router.get("/question/:id/answer/:id/likes", authMiddleware, getLikeCount)
 //atsakumo like pasalinimas
 router.delete("/question/:id/answer/:id/like", authMiddleware, removeLikeFromAnswer);
 
+
+
 module.exports = router;
