@@ -29,7 +29,7 @@ module.exports = {
         process.env.ACCESS_TOKEN_SECRET
       );
       userId = decodedToken.id;
-      console.log(userId);
+
     } catch (err) {
       return res
         .status(401)
@@ -88,4 +88,95 @@ module.exports = {
       res.status(500).json(err);
     }
   },
+
+  addLikeToAnswer: async (req, res) => {
+    let userId;
+    try {
+      // Gaunam jwt, po to dekoduojam ir gaunam vartotojo id ir jį saugome kartu su atsakymu į userId
+      const decodedToken = jwt.verify(
+        req.headers.authorization,
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      userId = decodedToken.id;
+    } catch (err) {
+      return res
+        .status(401)
+        .json({ message: "Nepavyko patikrinti autentifikacijos." });
+    }
+
+    try {
+        // Paieška atsakymo, kuriam norima pridėti "like"
+        const answer = await answerModel.findOne({ id: req.params.id });
+        if (!answer) {
+            return res.status(404).json({ message: "Atsakymas nerastas." });
+        }
+
+        // Patikriname, ar vartotojas jau paliko "like"
+        if(answer.gained_likes_number.includes(userId)) {
+            return res.status(400).json({ message: "Jūs jau palikote 'like' šiam atsakymui." });
+        }
+
+        // Pridedam "like" į atsakymą
+        answer.gained_likes_number.push(userId);
+        await answer.save();
+
+        res.status(200).json({ message: "Atsakymas sėkmingai palaikintas." });
+    } catch (err) {
+        res.status(500).json(err);
+        console.log("err", err)
+    }
+},
+
+getLikeCount: async (req, res) => {
+  try {
+    const answer = await answerModel.findOne({ id: req.params.id });
+    if (!answer) {
+        return res.status(404).json({ message: "Atsakymas nerastas." });
+    }
+
+    // Grąžiname 'like' kiekį
+    res.status(200).json({ likeCount: answer.gained_likes_number.length });
+  } catch (err) {
+      res.status(500).json(err);
+      console.log("err", err)
+  }
+},
+
+removeLikeFromAnswer: async (req, res) => {
+  let userId;
+  try {
+    const decodedToken = jwt.verify(
+      req.headers.authorization,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    userId = decodedToken.id;
+  } catch (err) {
+    return res
+      .status(401)
+      .json({ message: "Nepavyko patikrinti autentifikacijos." });
+  }
+
+  try {
+    const answer = await answerModel.findOne({ id: req.params.id });
+    if (!answer) {
+        return res.status(404).json({ message: "Atsakymas nerastas." });
+    }
+
+    // Patikriname, ar vartotojas jau paliko 'like'
+    const likeIndex = answer.gained_likes_number.indexOf(userId);
+    if (likeIndex === -1) {
+        return res.status(400).json({ message: "Jūs dar nepalikote 'like' šiam atsakymui." });
+    }
+
+    // Pašaliname 'like'
+    answer.gained_likes_number.splice(likeIndex, 1);
+    await answer.save();
+
+    res.status(200).json({ message: "Atsakymo 'like' sėkmingai pašalintas." });
+  } catch (err) {
+      res.status(500).json(err);
+      console.log("err", err)
+  }
+}
+
 };
