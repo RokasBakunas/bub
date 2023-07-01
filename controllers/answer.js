@@ -8,19 +8,22 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
-module.exports.addAnswerToQuestion = async (req, res) => {
+module.exports = {
+    addAnswerToQuestion: async (req, res) => {
+
+},
+
+
+
+
+getAllQuestionAnswers: async (req, res) => {
+
+},
+
+
+
+delAnswerById: async (req, res) => {
 
 }
-
-
-
-
-module.exports.getAllQuestionAnswers = async (req, res) => {
-
-}
-
-
-
-module.exports.delAnswerById = async (req, res) => {
 
 }
