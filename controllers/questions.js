@@ -5,6 +5,8 @@ const router = express.Router();
 const uniqid = require("uniqid");
 // importinam medeli
 const questionModel = require("./../models/question");
+const answerModel = require("./../models/answer");
+
 //pass kodavimas
 const bcrypt = require("bcryptjs");
 //jwt token
@@ -62,17 +64,53 @@ module.exports = {
   // visi klausimai
 
 
-//   getQuestions: async (req, res) => {
-//     try {
-//       const questions = await questionModel.find();
-//       res.status(200).json(questions);
-//     } catch (err) {
-//       res.status(500).json(err);
-//       console.log(err);
-//     }
-//   },
+  getQuestions: async (req, res) => {
+    try {
+      const questions = await questionModel.find();
+      res.status(200).json(questions);
+    } catch (err) {
+      res.status(500).json(err);
+      console.log(err);
+    }
+  },
 
-// visi klausimai
+//visi klausimai
+// getQuestions: async (req, res) => {
+//   try {
+//     const questions = await questionModel.aggregate([
+//       {
+//         $lookup: {
+//           from: 'users', 
+//           localField: 'userId',
+//           foreignField: 'id',
+//           as: 'userName',
+//         },
+//       },
+//       {
+//         $addFields: {
+//           userName: { $arrayElemAt: ["$userName.name", 0] },
+//         },
+//       },
+//       {
+//         $project: {
+//           question_text: 1,
+//           answers_id: 1,
+//           id: 1,
+//           userName: 1,
+//         },
+//       },
+//     ]);
+//     res.status(200).json(questions);
+//   } catch (err) {
+//     res.status(500).json(err);
+//     console.log(err);
+//   }
+// },
+
+
+
+
+
 getQuestions: async (req, res) => {
   try {
     const questions = await questionModel.aggregate([
@@ -90,11 +128,49 @@ getQuestions: async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'answers',
+          localField: 'id',
+          foreignField: 'question_id',
+          as: 'answers'
+        }
+      },
+      {
+        $unwind: {
+          path: '$answers',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'answers.answerUserId',
+          foreignField: 'id',
+          as: 'answers.userName'
+        }
+      },
+      {
+        $addFields: {
+          "answers.userName": { $arrayElemAt: ["$answers.userName.name", 0] },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          question_text: { $first: "$question_text" },
+          answers_id: { $first: "$answers_id" },
+          id: { $first: "$id" },
+          userName: { $first: "$userName" },
+          answers: { $push: "$answers" }
+        }
+      },
+      {
         $project: {
           question_text: 1,
           answers_id: 1,
           id: 1,
           userName: 1,
+          answers: 1,
         },
       },
     ]);
@@ -112,10 +188,10 @@ getQuestions: async (req, res) => {
 
 
 
-
   //klausimo gavimas pagal id
   getByIdQuestion: async (req, res) => {
     try {
+   
       const question = await questionModel.findOne({ id: req.params.id });
       if (question) {
         res.status(200).json(question);

@@ -77,15 +77,17 @@ module.exports.userReg = async (req, res) => {
 };
 
 module.exports.userLogin = async (req, res) => {
+  
   const { email, password } = req.body;
 
 try {
+  
+
+  const user = await userModel.findOne({email: email});
+  const passMatch = await bcrypt.compare(password, user.password);
   if(!user){
     res.status(404).json({response: "Blogas el. pašto adresas arba slaptažodis"});
   }
-  const user = await userModel.findOne({email: email});
-  const passMatch = await bcrypt.compare(password, user.password);
-
 //formos tikrinimo ifai>>
 
 //ar toks el. paštas yra

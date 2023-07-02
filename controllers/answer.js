@@ -45,7 +45,7 @@ module.exports = {
     const newAnswer = new answerModel({
       answer_text: req.body.answer_text,
       id: uniqid(),
-      question_id: req.params.question_id,
+      question_id: req.params.id,
       answerUserId: userId,
     });
 
@@ -77,7 +77,7 @@ module.exports = {
   getAllQuestionAnswers: async (req, res) => {
     try {
       const answers = await answerModel.find({
-        question_id: req.params.question_id,
+        question_id: req.params.id,
       });
 
       if (answers.length === 0) {
