@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-// unikalaus id generavimui
+
 const uniqid = require("uniqid");
-// importinam medeli
+
 const questionModel = require("./../models/question");
 const answerModel = require("./../models/answer");
 
@@ -73,38 +73,6 @@ module.exports = {
     }
   },
 
-//visi klausimai
-// getQuestions: async (req, res) => {
-//   try {
-//     const questions = await questionModel.aggregate([
-//       {
-//         $lookup: {
-//           from: 'users', 
-//           localField: 'userId',
-//           foreignField: 'id',
-//           as: 'userName',
-//         },
-//       },
-//       {
-//         $addFields: {
-//           userName: { $arrayElemAt: ["$userName.name", 0] },
-//         },
-//       },
-//       {
-//         $project: {
-//           question_text: 1,
-//           answers_id: 1,
-//           id: 1,
-//           userName: 1,
-//         },
-//       },
-//     ]);
-//     res.status(200).json(questions);
-//   } catch (err) {
-//     res.status(500).json(err);
-//     console.log(err);
-//   }
-// },
 
 
 
@@ -117,14 +85,38 @@ module.exports = {
 
 
 
+  // klausimo gavimas pagal id
+  // getByIdQuestion: async (req, res) => {
+  //   try {
+   
+  //     const question = await questionModel.findOne({ id: req.params.id });
+  //     if (question) {
+  //       res.status(200).json(question);
+  //     } else {
+  //       res.status(404).json({ message: "Toks klausimas nerastas" });
+  //     }
+  //   } catch (err) {
+  //     res.status(500).json(err);
+  //   }
+  // },
 
-  //klausimo gavimas pagal id
+
+
   getByIdQuestion: async (req, res) => {
     try {
-   
-      const question = await questionModel.findOne({ id: req.params.id });
-      if (question) {
-        res.status(200).json(question);
+      const question = await questionModel.aggregate([
+        { $match: { id: req.params.id } },
+        {
+          $lookup: {
+            from: "answers",
+            localField: "answers_id",
+            foreignField: "id",
+            as: "answers",
+          },
+        },
+      ]);
+      if (question.length > 0) {
+        res.status(200).json(question[0]);
       } else {
         res.status(404).json({ message: "Toks klausimas nerastas" });
       }
@@ -132,6 +124,7 @@ module.exports = {
       res.status(500).json(err);
     }
   },
+  
 
   delQuestionById: async (req, res) => {
     try {
