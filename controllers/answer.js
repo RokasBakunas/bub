@@ -45,18 +45,19 @@ module.exports = {
     const newAnswer = new answerModel({
       answer_text: req.body.answer_text,
       id: uniqid(),
-      question_id: req.params.id,
+      question_id: req.body.id,
       answerUserId: userId,
     });
 
     try {
       console.log("req.params.question_id", req.params.question_id)
       const question = await questionModel.findOne({
-        id: req.params.question_id,
+  
       }
 
-      
-      );
+
+      );      console.log("req.params.question_id", req.params.question_id)
+
 
       if (!question) {
         return res.status(404).json({ message: "Klausimas nerastas." });
