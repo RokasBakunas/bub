@@ -49,19 +49,14 @@ module.exports = {
 
     try {
       console.log("req.params.question_id", req.params.question_id)
-      const question = await questionModel.findOne({
-  
-      }
-
-
-      );      console.log("req.params.question_id", req.params.question_id)
+      const question = await questionModel.findOne({ id: req.params.question_id });
+      console.log("req.params.question_id", req.params.question_id)
 
 
       if (!question) {
         return res.status(404).json({ message: "Klausimas nerastas." });
       }
       console.log("err", question, req.body.question_id)
-         
       const savedAnswer = await newAnswer.save();
 
       question.answers_id.push(savedAnswer.id);
