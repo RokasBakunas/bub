@@ -24,10 +24,10 @@ module.exports = {
         });
     }
 
-    //pridedam laukeli userId kuriame nurodoma klausimmo autorius (jo id)
-    let userId;
+
+
     try {
-      //gaunam jwt po to dekoduojam ir gaunam vartotojo id ir ji issaugome kartu su klausimu i userId
+      //gaunam jwt po to dekoduojam ir gaunam vartotojo id
       const decodedToken = jwt.verify(
         req.headers.authorization,
         process.env.ACCESS_TOKEN_SECRET
@@ -46,7 +46,6 @@ module.exports = {
       answer_text: req.body.answer_text,
       id: uniqid(),
       question_id: req.body.id,
-      answerUserId: userId,
     });
 
     try {

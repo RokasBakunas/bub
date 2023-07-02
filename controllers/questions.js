@@ -50,7 +50,6 @@ module.exports = {
       question_text: req.body.question_text,
       answers_id: [],
       id: uniqid(),
-      userId: userId,
     });
 
     try {
