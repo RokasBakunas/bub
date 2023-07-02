@@ -1,3 +1,6 @@
+const express = require("express");
+const app = express();
+const router = express.Router();
 // unikalaus id generavimui
 const uniqid = require("uniqid");
 // importinam medeli

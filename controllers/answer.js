@@ -1,3 +1,6 @@
+const express = require("express");
+const app = express();
+const router = express.Router();
 // unikalaus id generavimui
 const uniqid = require("uniqid");
 // importinam medeli
@@ -13,6 +16,7 @@ module.exports = {
   addAnswerToQuestion: async (req, res) => {
     //tikrinam ar atsakymas nera tuscias.
     if (!req.body.answer_text || req.body.answer_text.trim() === "") {
+     
       return res
         .status(400)
         .json({
@@ -31,32 +35,40 @@ module.exports = {
       userId = decodedToken.id;
 
     } catch (err) {
+      console.log("err", err)
       return res
         .status(401)
         .json({ message: "Nepavyko patikrinti autentifikacijos." });
     }
 
+
     const newAnswer = new answerModel({
       answer_text: req.body.answer_text,
       id: uniqid(),
-      question_id: req.body.question_id,
+      question_id: req.params.question_id,
       answerUserId: userId,
     });
 
     try {
+      console.log("req.params.question_id", req.params.question_id)
       const question = await questionModel.findOne({
-        id: req.body.question_id,
-      });
-      if (!question) {
-        console.log("err", question, req.body.question_id)
+        id: req.params.question_id,
+      }
 
+      
+      );
+
+      if (!question) {
         return res.status(404).json({ message: "Klausimas nerastas." });
       }
+      console.log("err", question, req.body.question_id)
+
       const savedAnswer = await newAnswer.save();
       question.answers_id.push(savedAnswer.id);
       await question.save();
       res.status(200).json({ message: "Atsakymas sėkmingai pridėtas." });
     } catch (err) {
+      console.log("err", err)
       res.status(500).json(err);
     }
   },
@@ -85,6 +97,7 @@ module.exports = {
         res.status(404).json({ message: "Atsakymas nerastas." });
       }
     } catch (err) {
+      console.log("err", err)
       res.status(500).json(err);
     }
   },
@@ -99,6 +112,7 @@ module.exports = {
       );
       userId = decodedToken.id;
     } catch (err) {
+      console.log("err", err)
       return res
         .status(401)
         .json({ message: "Nepavyko patikrinti autentifikacijos." });
@@ -122,8 +136,9 @@ module.exports = {
 
         res.status(200).json({ message: "Atsakymas sėkmingai palaikintas." });
     } catch (err) {
+      console.log("err", err)
         res.status(500).json(err);
-        console.log("err", err)
+
     }
 },
 
@@ -137,8 +152,9 @@ getLikeCount: async (req, res) => {
     // Grąžiname 'like' kiekį
     res.status(200).json({ likeCount: answer.gained_likes_number.length });
   } catch (err) {
+    console.log("err", err)
       res.status(500).json(err);
-      console.log("err", err)
+ 
   }
 },
 
@@ -151,6 +167,7 @@ removeLikeFromAnswer: async (req, res) => {
     );
     userId = decodedToken.id;
   } catch (err) {
+    console.log("err", err)
     return res
       .status(401)
       .json({ message: "Nepavyko patikrinti autentifikacijos." });
@@ -174,8 +191,9 @@ removeLikeFromAnswer: async (req, res) => {
 
     res.status(200).json({ message: "Atsakymo 'like' sėkmingai pašalintas." });
   } catch (err) {
+    console.log("err", err)
       res.status(500).json(err);
-      console.log("err", err)
+      
   }
 }
 
