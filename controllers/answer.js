@@ -45,7 +45,6 @@ module.exports = {
     const newAnswer = new answerModel({
       answer_text: req.body.answer_text,
       id: uniqid(),
-      question_id: req.body.id,
     });
 
     try {
@@ -62,10 +61,13 @@ module.exports = {
         return res.status(404).json({ message: "Klausimas nerastas." });
       }
       console.log("err", question, req.body.question_id)
-
+         
       const savedAnswer = await newAnswer.save();
+
       question.answers_id.push(savedAnswer.id);
       await question.save();
+
+
       res.status(200).json({ message: "Atsakymas sėkmingai pridėtas." });
     } catch (err) {
       console.log("err", err)
