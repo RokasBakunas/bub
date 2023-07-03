@@ -4,6 +4,7 @@ const router = express.Router();
 // unikalaus id generavimui
 const uniqid = require("uniqid");
 // importinam medeli
+
 const answerModel = require("./../models/answer");
 const questionModel = require("./../models/question");
 //pass kodavimas
@@ -121,28 +122,33 @@ module.exports = {
   
 
 likes: async (req, res) => {
-  const { answerId, userId } = req.body;
+  const { answerId, id } = req.body;
 
   try {
-      const answer = await Answer.findById(answerId);
+    const answer = await answerModel.findOne({id: answerId});
+    console.log(answerId);
 
       if (!answer) {
           return res.status(404).json({message: 'Atsakymas nerastas'});
       }
 
-      const likes = answer.likes;
-      const index = likes.indexOf(userId);
 
-      
+      const likes = answer.likes || [];
+      const index = likes.indexOf(id);
+      console.log("id",id)
+
       if (index !== -1) {
-          likes.splice(index, 1);
-          answer.gained_likes_number -= 1;
-      } else {
-          likes.push(userId);
-          answer.gained_likes_number += 1;
-      }
-
-      await answer.save();
+        likes.splice(index, 1);
+        answer.gained_likes_number -= 1;
+    } else {
+        likes.push(id);
+        console.log("id",id)
+        answer.gained_likes_number += 1;
+    }
+    
+    answer.likes = likes;
+    await answer.save();
+    
 
       res.status(200).json({message: 'Atsakymas atnaujintas', answer});
   } catch (error) {
