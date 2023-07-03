@@ -7,8 +7,7 @@ const {
     getAllQuestionAnswers,
     addAnswerToQuestion,
     delAnswerById,
-    addLikeToAnswer,
-    getLikeCount,
+    likes,
     removeLikeFromAnswer,
 } = require("../controllers/answer");
 
@@ -19,11 +18,8 @@ router.post("/question/answer/:question_id", authMiddleware, addAnswerToQuestion
 //trinam atsakyma pagal id
 router.delete("/answer/:id", authMiddleware, delAnswerById);
 //atsakymo like
-router.post("/question/:id/answer/:id/like", authMiddleware, addLikeToAnswer);
-//atsakymo like kiekis
-router.get("/question/:id/answer/:id/likes", authMiddleware, getLikeCount)
-//atsakumo like pasalinimas
-router.delete("/question/:id/answer/:id/like", authMiddleware, removeLikeFromAnswer);
+router.post("/answer/like", authMiddleware, likes);
+
 
 
 

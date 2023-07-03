@@ -87,111 +87,68 @@ module.exports = {
   // del atsakyma pagal id
   delAnswerById: async (req, res) => {
     try {
+      // Find the answer to delete
+      const answer = await answerModel.findOne({ id: req.params.id });
+  
+      if (!answer) {
+        return res.status(404).json({ message: "Atsakymas nerastas." });
+      }
+  
+      // Delete the answer
       const removedAnswer = await answerModel.deleteOne({ id: req.params.id });
+  
       if (removedAnswer.deletedCount > 0) {
-        res.status(200).json({ message: "Atsakymas sėkmingai ištrintas. " });
+        // Find the associated question and remove the answer's id
+        const question = await questionModel.findOne({ answers_id: answer.id });
+  
+        if (question) {
+          const index = question.answers_id.indexOf(answer.id);
+          if (index !== -1) {
+            question.answers_id.splice(index, 1);
+            await question.save();
+          }
+        }
+  
+        return res.status(200).json({ message: "Atsakymas sėkmingai ištrintas. " });
       } else {
-        res.status(404).json({ message: "Atsakymas nerastas." });
+        return res.status(404).json({ message: "Atsakymas nerastas." });
       }
     } catch (err) {
-      console.log("err", err)
+      console.log("err", err);
       res.status(500).json(err);
     }
   },
+  
 
-  addLikeToAnswer: async (req, res) => {
-    let userId;
-    try {
-      // Gaunam jwt, po to dekoduojam ir gaunam vartotojo id ir jį saugome kartu su atsakymu į userId
-      const decodedToken = jwt.verify(
-        req.headers.authorization,
-        process.env.ACCESS_TOKEN_SECRET
-      );
-      userId = decodedToken.id;
-    } catch (err) {
-      console.log("err", err)
-      return res
-        .status(401)
-        .json({ message: "Nepavyko patikrinti autentifikacijos." });
-    }
-
-    try {
-        // Paieška atsakymo, kuriam norima pridėti "like"
-        const answer = await answerModel.findOne({ id: req.params.id });
-        if (!answer) {
-            return res.status(404).json({ message: "Atsakymas nerastas." });
-        }
-
-        // Patikriname, ar vartotojas jau paliko "like"
-        if(answer.gained_likes_number.includes(userId)) {
-            return res.status(400).json({ message: "Jūs jau palikote 'like' šiam atsakymui." });
-        }
-
-        // Pridedam "like" į atsakymą
-        answer.gained_likes_number.push(userId);
-        await answer.save();
-
-        res.status(200).json({ message: "Atsakymas sėkmingai palaikintas." });
-    } catch (err) {
-      console.log("err", err)
-        res.status(500).json(err);
-
-    }
-},
-
-getLikeCount: async (req, res) => {
-  try {
-    const answer = await answerModel.findOne({ id: req.params.id });
-    if (!answer) {
-        return res.status(404).json({ message: "Atsakymas nerastas." });
-    }
-
-    // Grąžiname 'like' kiekį
-    res.status(200).json({ likeCount: answer.gained_likes_number.length });
-  } catch (err) {
-    console.log("err", err)
-      res.status(500).json(err);
- 
-  }
-},
-
-removeLikeFromAnswer: async (req, res) => {
-  let userId;
-  try {
-    const decodedToken = jwt.verify(
-      req.headers.authorization,
-      process.env.ACCESS_TOKEN_SECRET
-    );
-    userId = decodedToken.id;
-  } catch (err) {
-    console.log("err", err)
-    return res
-      .status(401)
-      .json({ message: "Nepavyko patikrinti autentifikacijos." });
-  }
+likes: async (req, res) => {
+  const { answerId, userId } = req.body;
 
   try {
-    const answer = await answerModel.findOne({ id: req.params.id });
-    if (!answer) {
-        return res.status(404).json({ message: "Atsakymas nerastas." });
-    }
+      const answer = await Answer.findById(answerId);
 
-    // Patikriname, ar vartotojas jau paliko 'like'
-    const likeIndex = answer.gained_likes_number.indexOf(userId);
-    if (likeIndex === -1) {
-        return res.status(400).json({ message: "Jūs dar nepalikote 'like' šiam atsakymui." });
-    }
+      if (!answer) {
+          return res.status(404).json({message: 'Atsakymas nerastas'});
+      }
 
-    // Pašaliname 'like'
-    answer.gained_likes_number.splice(likeIndex, 1);
-    await answer.save();
+      const likes = answer.likes;
+      const index = likes.indexOf(userId);
 
-    res.status(200).json({ message: "Atsakymo 'like' sėkmingai pašalintas." });
-  } catch (err) {
-    console.log("err", err)
-      res.status(500).json(err);
       
+      if (index !== -1) {
+          likes.splice(index, 1);
+          answer.gained_likes_number -= 1;
+      } else {
+          likes.push(userId);
+          answer.gained_likes_number += 1;
+      }
+
+      await answer.save();
+
+      res.status(200).json({message: 'Atsakymas atnaujintas', answer});
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({message: 'Įvyko klaida'});
   }
 }
 
-};
+}
